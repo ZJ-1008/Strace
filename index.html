@@ -1,0 +1,79 @@
+<!DOCTYPE html>  
+<html lang="zh-CN">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>产品正品溯源</title>  
+    <style>  
+        /* 简单的手机端样式 */  
+        body { font-family: sans-serif; background: #f7f7f7; margin: 0; padding: 20px; }  
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; text-align: center;}  
+        img { max-width: 100%; border-radius: 8px; margin-top: 10px; }  
+        h2 { color: #333; margin: 10px 0; }  
+        p { color: #666; font-size: 14px; }  
+        .timeline { text-align: left; border-left: 2px solid #4CAF50; padding-left: 20px; margin-left: 10px; }  
+        .event { margin-bottom: 20px; position: relative; }  
+        .event::before { content: ''; width: 12px; height: 12px; background: #4CAF50; border-radius: 50%; position: absolute; left: -27px; top: 5px; }  
+        .date { font-size: 12px; color: #999; }  
+        .status { font-weight: bold; color: #333; }  
+        .error { color: red; text-align: center; display: none; padding: 50px 0;}  
+    </style>  
+</head>  
+<body>  
+  
+    <!-- 错误提示 -->  
+    <div id="error-box" class="error">  
+        <h3>⚠️ 未找到产品信息</h3>  
+        <p>该溯源码可能无效或非正品</p>  
+    </div>  
+  
+    <!-- 内容区域 -->  
+    <div id="content-box" style="display:none;">  
+        <div class="card">  
+            <h2 id="p-name"></h2>  
+            <p id="p-info"></p>  
+            <img id="p-img" src="" alt="产品图">  
+        </div>  
+  
+        <h3>🚀 溯源档案</h3>  
+        <div class="card" style="text-align: left;">  
+            <div class="timeline" id="timeline-box">  
+                <!-- 动态插入时间轴 -->  
+            </div>  
+        </div>  
+    </div>  
+  
+    <!-- 引入刚才的数据库 -->  
+    <script src="database.js"></script>  
+      
+    <script>  
+        // 1. 获取网址里的 ?id=xxx  
+        const urlParams = new URLSearchParams(window.location.search);  
+        const id = urlParams.get('id');  
+  
+        // 2. 去数据库里找这个ID  
+        const product = productDB[id];  
+  
+        if (product) {  
+            // 找到了，把数据填入页面  
+            document.getElementById('content-box').style.display = 'block';  
+            document.getElementById('p-name').innerText = product.name;  
+            document.getElementById('p-info').innerText = product.info;  
+            document.getElementById('p-img').src = product.image;  
+  
+            let html = '';  
+            product.history.forEach(item => {  
+                html += `  
+                <div class="event">  
+                    <div class="date">${item.date}</div>  
+                    <div class="status">${item.msg}</div>  
+                </div>`;  
+            });  
+            document.getElementById('timeline-box').innerHTML = html;  
+        } else {  
+            // 没找到，显示错误  
+            document.getElementById('error-box').style.display = 'block';  
+        }  
+    </script>  
+</body>  
+</html>  
